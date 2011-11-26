@@ -90,6 +90,56 @@ int search(NODE *sr, int num) {
 	} else
 		return -1;
 }
+	
+int treeMin(NODE *start) {
+	while(start->left != NULL)
+		start = start->left;
+	return start->data;
+}
+
+NODE* treeMinNode(NODE *start) {
+	while(start->left != NULL)
+		start = start->left;
+	return start;
+}
+
+int treeSuccessor(NODE *x) {
+	if (x->right != NULL) {
+		return treeMin(x->right);
+	}
+	NODE *y = x->parent;
+	while (y != NULL && x == y->right) {
+		x = y;
+		y = y->parent;
+	}
+	return y->data;
+}
+
+void transplant(NODE *start, NODE *u, NODE *v) {
+	if (u == u->parent->left)
+		u->parent->left = v;
+	else
+		u->parent->right = v;
+	v->parent = u->parent;
+}
+
+void treeDelete(NODE *start, NODE *z) {
+	if (z->left == NULL) 
+		transplant(start, z, z->right);
+	else if (z->right == NULL)
+		transplant(start, z, z->left);
+	else {
+		NODE *y = treeMinNode(z->right);
+		if (y->parent != z) {
+			transplant(start, y, y->right);
+			y->right = z->right;
+			y->right->parent = y;
+		}
+		transplant (start, z, y);
+		y->left = z->left;
+		y->left->parent = y;
+	}
+}
 
 int main() {
 	NODE *bt;
@@ -109,11 +159,19 @@ int main() {
 	printf("\n\nPostOrder== >\n\n");
 	postorder(bt);
 	cout<<endl;
+	/*
 	index=search(bt, 30);
 	cout<<"=>"<<index<<endl;
 	index=search(bt, 60);
 	cout<<"=>"<<index<<endl;
 	index=search(bt, 56);
 	cout<<"=>"<<index<<endl;
+	*/
+	cout<<"\nRoot Node:: "<<bt->data;
+	cout<<"\nTree min:: "<<treeMin(bt);
+	cout<<"\nTree successor for "<<bt->left->data<<":: "<<treeSuccessor(bt->left);
+	cout<<"\nDeleting :: "<<bt->left->data<<endl;
+	treeDelete(bt, bt->left);
+	inorder(bt);
 	cout<<"\n";
 }
